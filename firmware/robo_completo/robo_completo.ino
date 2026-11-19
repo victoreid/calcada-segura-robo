@@ -37,7 +37,8 @@
 //          chegar durante a calibração é descartado. 1 bipe = calibrou.
 //          3 bipes = recusado (perigo por perto, ou o chão variou demais, ou ficou
 //          fora de 3 a 40 cm): a calibração anterior continua valendo.
-//   1..9   nível da velocidade manual (começa no 7). PWM = 60 + 20 x nível
+//   1..9   nível da velocidade manual de W/S (começa no 7). PWM = 60 + 20 x nível.
+//          Giros e curvas usam sempre força máxima (veja PWM_GIRO).
 //   B      buzina: um bipe curto
 //
 // WATCHDOG: 1,5 s sem receber nenhum comando VÁLIDO da lista acima
@@ -108,8 +109,13 @@ const uint16_t FREQ_BIP = 2700;  // Hz dos bipes: perto da ressonância do buzze
 const char LINHA_FW[] PROGMEM = "FW:robo_completo 1.0";
 
 const uint8_t NIVEL_PADRAO = 7;      // velocidade manual inicial (1 a 9): PWM 200
-const uint8_t CURVA_PCT    = 45;     // curva: o lado de dentro anda 45% da velocidade
-const uint8_t GIRO_PCT     = 95;     // giro no lugar: 95% da velocidade
+// Para VIRAR, um 4WD precisa arrastar as rodas de lado: exige muita força, ainda
+// mais com 4 pilhas AA (a L298N come ~2 V). Por isso giros e curvas usam força
+// máxima, independente do nível de velocidade.
+const int PWM_GIRO         = 255;    // girar no lugar (A/D): os dois lados no máximo
+const int PWM_CURVA_FORA   = 255;    // curva (Q/E/Z/C): lado de fora no máximo
+const int PWM_CURVA_DENTRO = -128;   // curva: lado de dentro gira PARA TRÁS a 50%
+                                     // (só "mais devagar" não vira num 4WD)
 const uint8_t VEL_AUTO     = 130;    // PWM no modo AUTO
 const uint8_t VEL_LENTA    = 95;     // PWM no AUTO com piso irregular ou comando R
 
@@ -819,17 +825,16 @@ void aplicarManual(unsigned long agora) {
     return;
   }
   int v = 60 + 20 * nivel;                   // nível 7 = 200, nível 9 = 240
-  int curva = v * CURVA_PCT / 100;
-  int giro = v * GIRO_PCT / 100;
+  const int g = PWM_GIRO, fo = PWM_CURVA_FORA, de = PWM_CURVA_DENTRO;
   switch (cmd) {
     case 'W': mover(v, v);             break;
     case 'S': mover(-v, -v);           break;
-    case 'A': mover(-giro, giro);      break;   // girar para a esquerda
-    case 'D': mover(giro, -giro);      break;   // girar para a direita
-    case 'Q': mover(curva, v);         break;   // frente-esquerda
-    case 'E': mover(v, curva);         break;   // frente-direita
-    case 'Z': mover(-curva, -v);       break;   // ré-esquerda
-    case 'C': mover(-v, -curva);       break;   // ré-direita
+    case 'A': mover(-g, g);            break;   // girar para a esquerda
+    case 'D': mover(g, -g);            break;   // girar para a direita
+    case 'Q': mover(de, fo);           break;   // frente-esquerda
+    case 'E': mover(fo, de);           break;   // frente-direita
+    case 'Z': mover(-de, -fo);         break;   // ré-esquerda
+    case 'C': mover(-fo, -de);         break;   // ré-direita
     default:  mover(0, 0);             break;
   }
 }

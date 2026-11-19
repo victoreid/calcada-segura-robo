@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Cores iguais às do app do computador (app_controle/style.css). -->
+<resources>
+    <color name="pagina">#AEB7B0</color>
+    <color name="superficie">#E5E3DC</color>
+    <color name="elevado">#EFEDE6</color>
+    <color name="tinta">#202624</color>
+    <color name="tinta_suave">#5F6862</color>
+    <color name="cinza">#7A837D</color>
+    <color name="linha">#BCC4BB</color>
+    <color name="borda">#1A202624</color>
+    <color name="destaque">#2F6F68</color>
+    <color name="destaque_escuro">#1D4F49</color>
+    <color name="destaque_suave">#D7E6E2</color>
+    <color name="destaque_desligado">#477F74</color>
+    <color name="ativo">#E7EEE8</color>
+    <color name="ambar">#B7792F</color>
+    <color name="ambar_suave">#F3E4CF</color>
+    <color name="perigo">#C84F47</color>
+    <color name="perigo_escuro">#92322D</color>
+    <color name="perigo_suave">#F2D8D5</color>
+    <color name="verde">#3F8A55</color>
+    <color name="branco">#FFFFFF</color>
+    <color name="icone_fundo">#2F6F68</color>
+    <color name="texto_mensagens">#D7E6E2</color>
+</resources>

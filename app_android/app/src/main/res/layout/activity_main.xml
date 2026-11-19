@@ -1,0 +1,423 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Tela única, em duas partes:
+    - em cima, uma área que rola (conexão, sensores, movimento e mensagens),
+      para caber em celular pequeno;
+    - embaixo, a grade de botões FIXA: ela nunca sai da tela e nunca muda de
+      lugar debaixo do dedo (avisos que aparecem e somem ficam lá em cima).
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/pagina"
+    android:orientation="vertical"
+    android:splitMotionEvents="true">
+
+    <ScrollView
+        android:id="@+id/rolagem"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:splitMotionEvents="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="16dp"
+            android:paddingTop="12dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="8dp"
+            android:splitMotionEvents="true">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/titulo"
+                android:textColor="@color/tinta"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <!-- ===== Conexão ===== -->
+            <LinearLayout
+                style="@style/Cartao"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <View
+                        android:id="@+id/ponto_status"
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:background="@drawable/ponto" />
+
+                    <TextView
+                        android:id="@+id/texto_status"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:layout_weight="1"
+                        android:text="@string/status_desconectado"
+                        android:textColor="@color/tinta"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <Button
+                        android:id="@+id/botao_trocar"
+                        style="@style/BotaoTexto"
+                        android:layout_marginStart="4dp"
+                        android:text="@string/botao_trocar" />
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/botao_conectar"
+                    style="@style/BotaoPrincipal"
+                    android:text="@string/botao_conectar" />
+
+                <TextView
+                    android:id="@+id/texto_aviso"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/cartao_aviso"
+                    android:padding="10dp"
+                    android:text="@string/aviso_sem_dados"
+                    android:textColor="@color/tinta"
+                    android:textSize="14sp"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <!-- ===== Sensores ===== -->
+            <LinearLayout
+                style="@style/Cartao"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/TituloPequeno"
+                    android:text="@string/distancia_titulo" />
+
+                <TextView
+                    android:id="@+id/texto_distancia"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/distancia_desconhecida"
+                    android:textColor="@color/tinta"
+                    android:textSize="32sp"
+                    android:textStyle="bold" />
+
+                <ProgressBar
+                    android:id="@+id/barra_distancia"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:max="100"
+                    android:progress="0"
+                    android:progressBackgroundTint="@color/linha"
+                    android:progressTint="@color/destaque" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:id="@+id/cartao_obstaculo"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="6dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/cartao_indicador"
+                        android:orientation="vertical"
+                        android:padding="10dp">
+
+                        <TextView
+                            style="@style/TituloPequeno"
+                            android:text="@string/obstaculo_titulo" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <View
+                                android:id="@+id/ponto_obstaculo"
+                                android:layout_width="12dp"
+                                android:layout_height="12dp"
+                                android:background="@drawable/ponto" />
+
+                            <!-- minLines=2: o cartão tem sempre a mesma altura, com ou sem perigo. -->
+                            <TextView
+                                android:id="@+id/texto_obstaculo"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:layout_weight="1"
+                                android:minLines="2"
+                                android:text="@string/sem_dados"
+                                android:textColor="@color/tinta_suave"
+                                android:textSize="14sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/cartao_chao"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/cartao_indicador"
+                        android:orientation="vertical"
+                        android:padding="10dp">
+
+                        <TextView
+                            style="@style/TituloPequeno"
+                            android:text="@string/chao_titulo" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <View
+                                android:id="@+id/ponto_chao"
+                                android:layout_width="12dp"
+                                android:layout_height="12dp"
+                                android:background="@drawable/ponto" />
+
+                            <TextView
+                                android:id="@+id/texto_chao"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:layout_weight="1"
+                                android:minLines="2"
+                                android:text="@string/sem_dados"
+                                android:textColor="@color/tinta_suave"
+                                android:textSize="14sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- ===== Movimento atual ===== -->
+            <LinearLayout
+                style="@style/Cartao"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/texto_movimento"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/tinta"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/texto_continuo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:textColor="@color/ambar"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- ===== Mensagens do robô (abre e fecha) ===== -->
+            <Button
+                android:id="@+id/botao_mensagens"
+                style="@style/BotaoTexto"
+                android:layout_marginTop="4dp"
+                android:text="@string/mensagens_mostrar" />
+
+            <TextView
+                android:id="@+id/texto_mensagens"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/cartao_mensagens"
+                android:fontFamily="monospace"
+                android:padding="10dp"
+                android:text="@string/mensagens_vazio"
+                android:textColor="@color/texto_mensagens"
+                android:textIsSelectable="true"
+                android:textSize="12sp"
+                android:visibility="gone" />
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Linha fina separando a parte que rola da grade fixa. -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/linha" />
+
+    <!-- ===== Grade 3x3 de botões (Q W E / A parar D / Z S C), fixa embaixo ===== -->
+    <LinearLayout
+        android:id="@+id/grade"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="12dp"
+        android:paddingTop="4dp"
+        android:paddingEnd="12dp"
+        android:splitMotionEvents="true">
+
+        <LinearLayout style="@style/LinhaGrade">
+
+            <LinearLayout
+                android:id="@+id/botao_q"
+                style="@style/BotaoDirecao"
+                android:contentDescription="@string/desc_q">
+
+                <TextView
+                    style="@style/SetaBotao"
+                    android:text="@string/seta_q" />
+
+                <TextView
+                    style="@style/RotuloBotao"
+                    android:text="@string/rotulo_q" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/botao_w"
+                style="@style/BotaoDirecao"
+                android:contentDescription="@string/desc_w">
+
+                <TextView
+                    style="@style/SetaBotao"
+                    android:text="@string/seta_w" />
+
+                <TextView
+                    style="@style/RotuloBotao"
+                    android:text="@string/rotulo_w" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/botao_e"
+                style="@style/BotaoDirecao"
+                android:contentDescription="@string/desc_e">
+
+                <TextView
+                    style="@style/SetaBotao"
+                    android:text="@string/seta_e" />
+
+                <TextView
+                    style="@style/RotuloBotao"
+                    android:text="@string/rotulo_e" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout style="@style/LinhaGrade">
+
+            <LinearLayout
+                android:id="@+id/botao_a"
+                style="@style/BotaoDirecao"
+                android:contentDescription="@string/desc_a">
+
+                <TextView
+                    style="@style/SetaBotao"
+                    android:text="@string/seta_a" />
+
+                <TextView
+                    style="@style/RotuloBotao"
+                    android:text="@string/rotulo_a" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/botao_parar"
+                style="@style/BotaoParar"
+                android:contentDescription="@string/desc_parar">
+
+                <TextView
+                    style="@style/SetaParar"
+                    android:text="@string/seta_parar" />
+
+                <TextView
+                    style="@style/RotuloBotao"
+                    android:text="@string/rotulo_parar" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/botao_d"
+                style="@style/BotaoDirecao"
+                android:contentDescription="@string/desc_d">
+
+                <TextView
+                    style="@style/SetaBotao"
+                    android:text="@string/seta_d" />
+
+                <TextView
+                    style="@style/RotuloBotao"
+                    android:text="@string/rotulo_d" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout style="@style/LinhaGrade">
+
+            <LinearLayout
+                android:id="@+id/botao_z"
+                style="@style/BotaoDirecao"
+                android:contentDescription="@string/desc_z">
+
+                <TextView
+                    style="@style/SetaBotao"
+                    android:text="@string/seta_z" />
+
+                <TextView
+                    style="@style/RotuloBotao"
+                    android:text="@string/rotulo_z" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/botao_s"
+                style="@style/BotaoDirecao"
+                android:contentDescription="@string/desc_s">
+
+                <TextView
+                    style="@style/SetaBotao"
+                    android:text="@string/seta_s" />
+
+                <TextView
+                    style="@style/RotuloBotao"
+                    android:text="@string/rotulo_s" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/botao_c"
+                style="@style/BotaoDirecao"
+                android:contentDescription="@string/desc_c">
+
+                <TextView
+                    style="@style/SetaBotao"
+                    android:text="@string/seta_c" />
+
+                <TextView
+                    style="@style/RotuloBotao"
+                    android:text="@string/rotulo_c" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:paddingStart="16dp"
+        android:paddingTop="2dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp"
+        android:text="@string/ajuda_controle"
+        android:textColor="@color/tinta_suave"
+        android:textSize="13sp" />
+</LinearLayout>

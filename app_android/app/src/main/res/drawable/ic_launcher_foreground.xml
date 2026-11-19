@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ícone: carrinho visto de cima com um pino de mapa (buraco marcado no mapa). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Rodas -->
+    <path
+        android:fillColor="#202624"
+        android:pathData="M29,57h7v9h-7z M29,68h7v9h-7z M72,57h7v9h-7z M72,68h7v9h-7z" />
+
+    <!-- Corpo do carrinho -->
+    <path
+        android:fillColor="#EFEDE6"
+        android:pathData="M38,55h32a4,4 0,0 1,4 4v15a4,4 0,0 1,-4 4h-32a4,4 0,0 1,-4 -4v-15a4,4 0,0 1,4 -4z" />
+
+    <!-- Os dois sonares -->
+    <path
+        android:fillColor="#2F6F68"
+        android:pathData="M42,66a4,4 0,1 0,8 0a4,4 0,1 0,-8 0z" />
+    <path
+        android:fillColor="#2F6F68"
+        android:pathData="M58,66a4,4 0,1 0,8 0a4,4 0,1 0,-8 0z" />
+
+    <!-- Pino de mapa -->
+    <path
+        android:fillColor="#C84F47"
+        android:pathData="M54,53C54,53 42,42.5 42,35A12,12 0,1 1,66 35C66,42.5 54,53 54,53z" />
+    <path
+        android:fillColor="#EFEDE6"
+        android:pathData="M49,35a5,5 0,1 0,10 0a5,5 0,1 0,-10 0z" />
+</vector>

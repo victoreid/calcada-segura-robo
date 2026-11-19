@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Calçada Segura · Robô</string>
+    <string name="titulo">Calçada Segura · Robô</string>
+
+    <!-- Status da conexão -->
+    <string name="status_desconectado">Desconectado</string>
+    <string name="status_conectando">Conectando a %1$s…</string>
+    <string name="status_conectado">Conectado: %1$s</string>
+    <string name="status_erro">Erro: %1$s</string>
+    <string name="status_conexao_perdida">Conexão perdida</string>
+    <string name="botao_conectar">Conectar ao robô</string>
+    <string name="botao_cancelar">Cancelar</string>
+    <string name="botao_desconectar">Desconectar</string>
+    <string name="botao_trocar">Trocar robô</string>
+    <!-- Os dados do robô saem do D1 (TX do Arduino) e entram no RXD do HC-05. O fio TXD -> D0 só leva os comandos. -->
+    <string name="aviso_sem_dados">O robô não está mandando dados. Confira se o programa robo_app está gravado e se o fio RXD do HC-05 está no D1 (pelo divisor 1k/2k).</string>
+
+    <!-- Sensores -->
+    <string name="distancia_titulo">Distância à frente</string>
+    <string name="distancia_desconhecida">--</string>
+    <string name="distancia_livre">livre</string>
+    <string name="distancia_cm">%1$d cm</string>
+    <string name="obstaculo_titulo">Obstáculo</string>
+    <string name="obstaculo_livre">Caminho livre</string>
+    <string name="obstaculo_ativo">OBSTÁCULO À FRENTE</string>
+    <string name="chao_titulo">Chão</string>
+    <string name="chao_ok">Chão OK</string>
+    <string name="chao_buraco">BURACO OU DEGRAU</string>
+    <string name="sem_dados">Sem dados</string>
+
+    <!-- Movimento -->
+    <string name="movimento">Movimento: %1$s</string>
+    <string name="modo_continuo">Modo contínuo: %1$s</string>
+    <string name="nenhum">nenhum</string>
+    <string name="ajuda_controle">Segure para andar. Toque duas vezes para andar sem segurar. ■ para tudo.</string>
+
+    <!-- Botões da grade 3x3 -->
+    <string name="seta_q">↖</string>
+    <string name="seta_w">↑</string>
+    <string name="seta_e">↗</string>
+    <string name="seta_a">←</string>
+    <string name="seta_parar">■</string>
+    <string name="seta_d">→</string>
+    <string name="seta_z">↙</string>
+    <string name="seta_s">↓</string>
+    <string name="seta_c">↘</string>
+    <string name="rotulo_q">Frente esq</string>
+    <string name="rotulo_w">Frente</string>
+    <string name="rotulo_e">Frente dir</string>
+    <string name="rotulo_a">Girar esq</string>
+    <string name="rotulo_parar">Parar</string>
+    <string name="rotulo_d">Girar dir</string>
+    <string name="rotulo_z">Ré esq</string>
+    <string name="rotulo_s">Ré</string>
+    <string name="rotulo_c">Ré dir</string>
+    <string name="desc_q">Frente à esquerda</string>
+    <string name="desc_w">Frente</string>
+    <string name="desc_e">Frente à direita</string>
+    <string name="desc_a">Girar à esquerda</string>
+    <string name="desc_parar">Parar tudo</string>
+    <string name="desc_d">Girar à direita</string>
+    <string name="desc_z">Ré à esquerda</string>
+    <string name="desc_s">Ré</string>
+    <string name="desc_c">Ré à direita</string>
+
+    <!-- Mensagens do robô -->
+    <string name="mensagens_mostrar">Mostrar mensagens do robô</string>
+    <string name="mensagens_esconder">Esconder mensagens do robô</string>
+    <string name="mensagens_vazio">Nenhuma mensagem ainda.</string>
+
+    <!-- Avisos -->
+    <string name="sem_bluetooth">Este celular não tem Bluetooth</string>
+    <string name="conecte_primeiro">Conecte o robô primeiro.</string>
+    <string name="aguarde">Aguarde um instante e tente de novo.</string>
+    <string name="robo_parou">O robô parou: %1$s</string>
+    <string name="motivo_obstaculo">obstáculo à frente</string>
+    <string name="motivo_buraco">buraco ou degrau no chão</string>
+    <string name="motivo_os_dois">obstáculo e buraco</string>
+    <string name="conexao_caiu">A conexão caiu. O robô para sozinho em 1,5 s. Toque em Conectar ao robô para voltar.</string>
+    <string name="dica_falha">Confira se o robô está ligado e perto do celular, e se o PC não está conectado nele (COM8).</string>
+    <string name="erro_sem_resposta">o robô não respondeu</string>
+    <string name="erro_sem_permissao">sem permissão de Bluetooth</string>
+    <string name="bt_desligado">O Bluetooth continua desligado. Ligue o Bluetooth e toque em Conectar ao robô.</string>
+    <string name="bt_ligue">Ligue o Bluetooth do celular e toque em Conectar ao robô de novo.</string>
+    <string name="sem_tela_bluetooth">Não consegui abrir as configurações. Abra Configurações → Bluetooth no celular.</string>
+    <string name="sem_tela_app">Não consegui abrir as configurações. Abra Configurações → Apps → Calçada Segura · Robô → Permissões.</string>
+
+    <!-- Permissão -->
+    <string name="permissao_titulo">Permissão de Bluetooth</string>
+    <string name="permissao_negada_msg">Sem a permissão \"Dispositivos próximos\" o app não conversa com o robô.\n\nToque em Abrir configurações, depois em Permissões, depois em Dispositivos próximos, e escolha Permitir.</string>
+    <string name="permissao_negada_curta">Sem a permissão de Bluetooth o app não conversa com o robô. Toque em Conectar ao robô e escolha Permitir.</string>
+    <string name="abrir_configuracoes">Abrir configurações</string>
+    <string name="agora_nao">Agora não</string>
+
+    <!-- Escolher e parear o robô -->
+    <string name="escolha_o_robo">Escolha o robô</string>
+    <string name="provavel_robo">provável robô</string>
+    <string name="parear_outro">Parear outro</string>
+    <string name="parear_titulo">Parear o robô</string>
+    <string name="parear_msg">Pareie o robô nas configurações do Bluetooth (nome FB21_083, PIN 1234). Depois volte aqui e toque em Conectar ao robô.</string>
+    <string name="sem_pareados_msg">Nenhum aparelho pareado. Pareie o robô nas configurações do Bluetooth (nome FB21_083, PIN 1234). Depois volte aqui e toque em Conectar ao robô.</string>
+    <string name="abrir_bluetooth">Abrir Bluetooth</string>
+    <string name="cancelar">Cancelar</string>
+</resources>

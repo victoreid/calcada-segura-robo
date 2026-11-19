@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Tema do app: Material do próprio Android (sem bibliotecas extras). -->
+    <style name="TemaRobo" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:colorPrimary">@color/destaque</item>
+        <item name="android:colorPrimaryDark">@color/destaque_escuro</item>
+        <item name="android:colorAccent">@color/destaque</item>
+        <item name="android:statusBarColor">@color/destaque_escuro</item>
+        <item name="android:navigationBarColor">@color/tinta</item>
+        <item name="android:windowBackground">@color/pagina</item>
+        <item name="android:textColorPrimary">@color/tinta</item>
+    </style>
+
+    <!-- Cartões (caixas claras com borda) -->
+    <style name="Cartao">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:background">@drawable/cartao</item>
+        <item name="android:padding">10dp</item>
+    </style>
+
+    <style name="TituloPequeno">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/tinta_suave</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- Botão grande de conectar / desconectar -->
+    <style name="BotaoPrincipal">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">56dp</item>
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:background">@drawable/bg_botao_conectar</item>
+        <item name="android:textColor">@color/branco</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:stateListAnimator">@null</item>
+    </style>
+
+    <!-- Botão só de texto (Trocar robô, Mensagens) -->
+    <style name="BotaoTexto" parent="android:Widget.Material.Button.Borderless">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/destaque</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <!-- Grade 3x3 -->
+    <style name="LinhaGrade">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:splitMotionEvents">true</item>
+    </style>
+
+    <!-- 80 dp de altura: alvo grande para o dedo e a grade inteira cabe na tela. -->
+    <style name="BotaoDirecao">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">80dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_margin">4dp</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/bg_botao</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:hapticFeedbackEnabled">true</item>
+    </style>
+
+    <style name="BotaoParar">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">80dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_margin">4dp</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/bg_botao_parar</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:hapticFeedbackEnabled">true</item>
+    </style>
+
+    <style name="SetaBotao">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/destaque</item>
+        <item name="android:textSize">32sp</item>
+        <item name="android:importantForAccessibility">no</item>
+    </style>
+
+    <style name="SetaParar">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/perigo</item>
+        <item name="android:textSize">28sp</item>
+        <item name="android:importantForAccessibility">no</item>
+    </style>
+
+    <style name="RotuloBotao">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">2dp</item>
+        <item name="android:textColor">@color/tinta_suave</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:importantForAccessibility">no</item>
+    </style>
+
+</resources>

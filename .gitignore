@@ -1,0 +1,20 @@
+# Segredos: nunca no repositório
+.env
+*.env
+!.env.example
+
+# Android (gerados na compilação)
+app_android/.gradle/
+app_android/build/
+app_android/app/build/
+app_android/local.properties
+*.apk
+.idea/
+*.iml
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/

@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+prints/
+agenda.txt
+dataset/
+# Modelo do rosto (dado biométrico): cada um treina o seu com treinar_face.py
+modelo_lbph.yml
+rotulos_face.json
+# Registro das inspeções do robô
+inspecoes/

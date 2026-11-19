@@ -19,13 +19,24 @@ Ele faz o mesmo que o app do computador (`app_controle`), só que no celular.
   Para sair do modo contínuo, toque em outro botão ou no ■.
 - **■ para tudo.**
 - Mostra a **distância** do sonar da frente, e se tem **obstáculo** ou **buraco/degrau**.
+- Mostra o **piso** medido pelo **MPU-6050**: a **trepidação** em g (RMS) com barra colorida
+  (até 0,12 g = piso liso, verde; até 0,30 g = piso irregular, âmbar; acima = muito irregular, vermelho)
+  e a **inclinação** em %, com aviso quando passa do limite de rampa da NBR 9050 (8,33 %).
+  Os números vêm da linha JSON que o robô manda a cada 250 ms (`"vib"` e `"inc"`). Se o MPU parar
+  de responder (`"ev":"falha_mpu"`), o cartão mostra **MPU-6050 sem resposta** e o app avisa quais fios conferir.
 - Quando aparece obstáculo ou buraco e o robô ia para a frente, o app **para tudo** e o celular vibra.
+- **Sakura (IA):** toque em **Ligar Sakura** e digite o endereço que a Sakura mostra no PC (ex.: `192.168.0.10`).
+  O app manda a telemetria para ela e mostra a **decisão** (SEGUIR, REDUZIR, PARAR), o motivo e o que ela falou.
+  Os comandos de voz ("Sakura, robô modo automático", "Sakura, robô parar") chegam por ela. Veja o README principal.
+- **Inspeção automática:** o botão **Iniciar inspeção automática** manda `I`; o robô anda sozinho e o app
+  repassa a decisão da Sakura (`G`, `R` ou `P`) a cada 300 ms. Sem Sakura, manda `G` e o robô usa só as regras dele.
+  Qualquer botão da grade ou o ■ volta ao manual e para.
 - Quando o app sai da tela (ou algo cobre a tela, como a cortina de notificações), ele manda o robô **parar**.
 - Se o app ficar **15 s fora da tela**, ele desconecta e solta o HC-05.
 
 ## Como o app conversa com o robô (protocolo)
 
-O programa do Arduino é o `firmware/robo_app/robo_app.ino`.
+O programa do Arduino é o `firmware/robo_completo/robo_completo.ino`.
 
 **Do celular para o robô** (uma letra, sem Enter):
 

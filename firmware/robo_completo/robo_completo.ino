@@ -543,7 +543,7 @@ bool mpuFalhou()       { return mpuFalhas >= MPU_FALHAS_MAX; }
 bool sonarChaoFalhou() { return chaoSemEco >= CHAO_SEM_ECO_FALHA || !baseOk; }
 bool frenteFalhou()    { return frenteFalhas >= FRENTE_FALHAS_MAX; }
 
-// Inclinação (%) e vibração (RMS do eixo Z sem a gravidade), igual ao robo_inspetor.
+// Inclinação (%) e vibração (RMS da aceleração total sem a gravidade).
 void atualizarMPU(unsigned long agora) {
   float ax, ay, az;
   if (lerMPU(ax, ay, az)) {
@@ -560,8 +560,11 @@ void atualizarMPU(unsigned long agora) {
     inc = tan(a * 0.0174533f) * 100.0f;              // % = tan(ângulo) x 100
     if (inc > 999) inc = 999;
     if (inc < -999) inc = -999;
-    azM += 0.05f * (az - azM);                       // média lenta = gravidade
-    float d = az - azM;
+    // Trepidação pela aceleração TOTAL (3 eixos), não só pelo Z: assim funciona
+    // em qualquer posição em que o MPU estiver preso no chassi. Parado, |a| = 1 g.
+    float mod = sqrt(ax * ax + ay * ay + az * az);
+    azM += 0.05f * (mod - azM);                      // média lenta = gravidade (~1 g)
+    float d = mod - azM;
     vq += 0.03f * (d * d - vq);                      // janela de ~1 s
     vib = sqrt(vq);
     if (vib > 9.99f) vib = 9.99f;
@@ -711,7 +714,7 @@ bool calibrar() {
   unsigned long t0 = millis();
   while (millis() - t0 < 2000) {
     float ax, ay, az, c;
-    if (lerMPU(ax, ay, az)) { somaAng += anguloGraus(ax, ay, az); somaZ += az; n++; }
+    if (lerMPU(ax, ay, az)) { somaAng += anguloGraus(ax, ay, az); somaZ += sqrt(ax * ax + ay * ay + az * az); n++; }
     if (medir(TRIG_C, ECHO_C, c) == MED_OK && nc < NMAX) {
       mm[nc++] = (uint16_t)(c * 10.0f + 0.5f);
     }

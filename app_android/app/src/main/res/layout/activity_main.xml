@@ -209,6 +209,140 @@
                         </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
+
+                <!-- Piso: trepidação e inclinação medidas pelo MPU-6050 -->
+                <LinearLayout
+                    android:id="@+id/cartao_piso"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/cartao_indicador"
+                    android:orientation="vertical"
+                    android:padding="10dp">
+
+                    <TextView
+                        style="@style/TituloPequeno"
+                        android:text="@string/piso_titulo" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <View
+                            android:id="@+id/ponto_piso"
+                            android:layout_width="12dp"
+                            android:layout_height="12dp"
+                            android:background="@drawable/ponto" />
+
+                        <TextView
+                            android:id="@+id/texto_piso"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:layout_weight="1"
+                            android:text="@string/sem_dados"
+                            android:textColor="@color/tinta_suave"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/texto_trepidacao"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/distancia_desconhecida"
+                            android:textColor="@color/tinta"
+                            android:textSize="22sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <ProgressBar
+                        android:id="@+id/barra_trepidacao"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:max="100"
+                        android:progress="0"
+                        android:progressBackgroundTint="@color/linha"
+                        android:progressTint="@color/destaque" />
+
+                    <TextView
+                        android:id="@+id/texto_inclinacao"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="@string/inclinacao_desconhecida"
+                        android:textColor="@color/tinta_suave"
+                        android:textSize="14sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- ===== Sakura (IA) e modo automático ===== -->
+            <LinearLayout
+                style="@style/Cartao"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/TituloPequeno"
+                    android:text="@string/sakura_titulo" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <View
+                        android:id="@+id/ponto_sakura"
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:background="@drawable/ponto" />
+
+                    <TextView
+                        android:id="@+id/texto_sakura_status"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:text="@string/sakura_desligada"
+                        android:textColor="@color/tinta"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <Button
+                        android:id="@+id/botao_sakura"
+                        style="@style/BotaoTexto"
+                        android:layout_marginStart="4dp"
+                        android:text="@string/botao_sakura_ligar" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/texto_sakura_decisao"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textColor="@color/tinta"
+                    android:textSize="15sp"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/texto_sakura_fala"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textColor="@color/tinta_suave"
+                    android:textSize="14sp"
+                    android:textStyle="italic"
+                    android:visibility="gone" />
+
+                <Button
+                    android:id="@+id/botao_auto"
+                    style="@style/BotaoPrincipal"
+                    android:text="@string/botao_auto_iniciar" />
             </LinearLayout>
 
             <!-- ===== Movimento atual ===== -->

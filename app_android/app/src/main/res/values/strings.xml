@@ -14,7 +14,7 @@
     <string name="botao_desconectar">Desconectar</string>
     <string name="botao_trocar">Trocar robô</string>
     <!-- Os dados do robô saem do D1 (TX do Arduino) e entram no RXD do HC-05. O fio TXD -> D0 só leva os comandos. -->
-    <string name="aviso_sem_dados">O robô não está mandando dados. Confira se o programa robo_app está gravado e se o fio RXD do HC-05 está no D1 (pelo divisor 1k/2k).</string>
+    <string name="aviso_sem_dados">O robô não está mandando dados. Confira se o programa robo_completo está gravado e se o fio RXD do HC-05 está no D1 (pelo divisor 1k/2k).</string>
 
     <!-- Sensores -->
     <string name="distancia_titulo">Distância à frente</string>
@@ -28,6 +28,44 @@
     <string name="chao_ok">Chão OK</string>
     <string name="chao_buraco">BURACO OU DEGRAU</string>
     <string name="sem_dados">Sem dados</string>
+    <string name="piso_titulo">Piso (trepidação · MPU-6050)</string>
+    <string name="piso_liso">Piso liso</string>
+    <string name="piso_irregular">PISO IRREGULAR</string>
+    <string name="piso_forte">PISO MUITO IRREGULAR</string>
+    <string name="piso_falha_mpu">MPU-6050 sem resposta</string>
+    <string name="trepidacao_g">%1$.2f g</string>
+    <string name="inclinacao_desconhecida">Inclinação: --</string>
+    <string name="inclinacao_ok">Inclinação: %1$.1f %% (limite da rampa: 8,33 %%)</string>
+    <string name="inclinacao_rampa">Inclinação: %1$.1f %% · ACIMA DA NBR 9050 (8,33 %%)</string>
+    <string name="falha_mpu_dica">Confira os fios do MPU-6050: SDA no A4, SCL no A5, VCC no 5V e GND.</string>
+
+    <!-- Sakura (IA) e modo automático -->
+    <string name="sakura_titulo">Sakura · IA de decisão</string>
+    <string name="sakura_desligada">Sakura desligada: o robô decide sozinho</string>
+    <string name="sakura_testando">Procurando a Sakura em %1$s…</string>
+    <string name="sakura_online">Sakura online (%1$s)</string>
+    <string name="sakura_sem_resposta">Sakura sem resposta: o robô decide sozinho</string>
+    <string name="sakura_aguardando">Sakura ligada (%1$s). Conecte o robô para mandar os dados.</string>
+    <string name="botao_sakura_ligar">Ligar Sakura</string>
+    <string name="botao_sakura_desligar">Desligar Sakura</string>
+    <string name="sakura_dialogo_titulo">Ligar a Sakura</string>
+    <string name="sakura_dialogo_msg">No PC, rode a Sakura (python main.py ou python robo.py). Ela mostra o endereço para digitar aqui. O celular e o PC precisam estar no mesmo Wi-Fi.</string>
+    <string name="sakura_dica_endereco">192.168.0.10</string>
+    <string name="sakura_ligar">Ligar</string>
+    <string name="sakura_endereco_invalido">Endereço inválido. Digite o IP do PC, por exemplo 192.168.0.10</string>
+    <string name="sakura_conectou">Sakura conectada! Ela recebe os sensores e decide no modo automático.</string>
+    <string name="sakura_falhou">Não achei a Sakura (%1$s). Confira o IP, se ela está rodando e se o celular está no mesmo Wi-Fi.</string>
+    <string name="sakura_decisao">Decisão: %1$s · %2$s</string>
+    <string name="sakura_fala">Sakura: "%1$s"</string>
+    <string name="decisao_seguir">SEGUIR</string>
+    <string name="decisao_reduzir">REDUZIR</string>
+    <string name="decisao_parar">PARAR</string>
+    <string name="botao_auto_iniciar">Iniciar inspeção automática</string>
+    <string name="botao_auto_parar">Voltar ao manual (parar)</string>
+    <string name="auto_iniciou">Inspeção automática: o robô anda sozinho. Toque em qualquer botão para assumir.</string>
+    <string name="auto_saiu">Modo manual: o robô parou.</string>
+    <string name="auto_robo_saiu">O robô saiu do modo automático sozinho (reiniciou?). Ficou parado.</string>
+    <string name="movimento_auto">Movimento: automático · %1$s</string>
 
     <!-- Movimento -->
     <string name="movimento">Movimento: %1$s</string>

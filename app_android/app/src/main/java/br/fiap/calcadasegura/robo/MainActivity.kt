@@ -27,7 +27,9 @@ import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
+import android.text.InputType
 import android.widget.Button
+import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
@@ -44,8 +46,17 @@ import android.widget.Toast
  * - Quando chega obstáculo ou buraco e o robô ia para a frente, o app para tudo.
  * - Cada dedo na tela é seguido pelo seu número (pointerId): soltou o dedo, o
  *   botão dele solta, mesmo com outro dedo ou a palma da mão encostada na tela.
+ *
+ * Integração com a Sakura (IA do grupo, roda no PC; veja sakura/robo.py):
+ * - Cada linha JSON do robô (MPU-6050 e sonares) vai para a Sakura pelo Wi-Fi.
+ * - Ela devolve a decisão G (seguir), R (reduzir) ou P (parar). No modo AUTO o
+ *   batimento manda essa letra ao robô no lugar do '0', a cada 300 ms.
+ * - Ela também devolve comandos falados ("Sakura, robô modo automático").
+ * - Sakura sem resposta por 3 s: a decisão volta para G e o robô usa só as
+ *   regras de segurança dele (que sempre valem: obstáculo e buraco param).
+ * - Qualquer botão da grade, ■, ou o app sair da tela tira do AUTO e para.
  */
-class MainActivity : Activity(), ConexaoBluetooth.Ouvinte {
+class MainActivity : Activity(), ConexaoBluetooth.Ouvinte, ConexaoSakura.Ouvinte {
 
     private enum class Estado { DESCONECTADO, CONECTANDO, CONECTADO }
 
@@ -73,6 +84,20 @@ class MainActivity : Activity(), ConexaoBluetooth.Ouvinte {
     private var distanciaCm: Int? = null
     private var obstaculo: Boolean? = null // null = ainda sem dados
     private var buraco: Boolean? = null
+    private var telemetria: EventoRobo.Telemetria? = null // último JSON do MPU-6050
+    private var ultimaTelemetriaEm = 0L
+    private var avisouFalhaMpu = false
+
+    // Modo automático e Sakura
+    private var sakura: ConexaoSakura? = null
+    private var modoAuto = false
+    private var precisaEntrarAuto = false // ainda mandando 'I' até o robô dizer "m":"A"
+    private var roboConfirmouAuto = false
+    private var decisaoIA = IA_SEGUIR
+    private var motivoIA = ""
+    private var falaSakura = ""
+    private var testandoSakura = false
+    private var ultimaRespostaSakuraEm = 0L
     private var mensagensVisiveis = false
 
     // O que fazer depois que o usuário der a permissão ou ligar o Bluetooth.
@@ -98,6 +123,18 @@ class MainActivity : Activity(), ConexaoBluetooth.Ouvinte {
     private lateinit var cartaoChao: View
     private lateinit var pontoChao: View
     private lateinit var textoChao: TextView
+    private lateinit var cartaoPiso: View
+    private lateinit var pontoPiso: View
+    private lateinit var textoPiso: TextView
+    private lateinit var textoTrepidacao: TextView
+    private lateinit var barraTrepidacao: ProgressBar
+    private lateinit var textoInclinacao: TextView
+    private lateinit var pontoSakura: View
+    private lateinit var textoSakuraStatus: TextView
+    private lateinit var textoSakuraDecisao: TextView
+    private lateinit var textoSakuraFala: TextView
+    private lateinit var botaoSakura: Button
+    private lateinit var botaoAuto: Button
     private lateinit var textoMovimento: TextView
     private lateinit var textoContinuo: TextView
     private lateinit var botaoMensagens: Button
@@ -107,6 +144,7 @@ class MainActivity : Activity(), ConexaoBluetooth.Ouvinte {
     private val batimento = object : Runnable {
         override fun run() {
             if (estado != Estado.CONECTADO) return
+            conferirSakuraViva()
             enviarComandoAtual(forcar = true)
             atualizarAvisoSemDados()
             principal.postDelayed(this, BATIMENTO_MS)
@@ -142,6 +180,7 @@ class MainActivity : Activity(), ConexaoBluetooth.Ouvinte {
         } else {
             conexao = ConexaoBluetooth(this, adapter, this)
         }
+        sakura = ConexaoSakura(this)
         atualizarTudo()
     }
 
@@ -185,6 +224,8 @@ class MainActivity : Activity(), ConexaoBluetooth.Ouvinte {
         pararBatimento()
         conexao?.liberar()
         conexao = null
+        sakura?.liberar()
+        sakura = null
         principal.removeCallbacksAndMessages(null)
         super.onDestroy()
     }
@@ -203,6 +244,18 @@ class MainActivity : Activity(), ConexaoBluetooth.Ouvinte {
         cartaoChao = findViewById(R.id.cartao_chao)
         pontoChao = findViewById(R.id.ponto_chao)
         textoChao = findViewById(R.id.texto_chao)
+        cartaoPiso = findViewById(R.id.cartao_piso)
+        pontoPiso = findViewById(R.id.ponto_piso)
+        textoPiso = findViewById(R.id.texto_piso)
+        textoTrepidacao = findViewById(R.id.texto_trepidacao)
+        barraTrepidacao = findViewById(R.id.barra_trepidacao)
+        textoInclinacao = findViewById(R.id.texto_inclinacao)
+        pontoSakura = findViewById(R.id.ponto_sakura)
+        textoSakuraStatus = findViewById(R.id.texto_sakura_status)
+        textoSakuraDecisao = findViewById(R.id.texto_sakura_decisao)
+        textoSakuraFala = findViewById(R.id.texto_sakura_fala)
+        botaoSakura = findViewById(R.id.botao_sakura)
+        botaoAuto = findViewById(R.id.botao_auto)
         textoMovimento = findViewById(R.id.texto_movimento)
         textoContinuo = findViewById(R.id.texto_continuo)
         botaoMensagens = findViewById(R.id.botao_mensagens)
@@ -211,6 +264,8 @@ class MainActivity : Activity(), ConexaoBluetooth.Ouvinte {
         botaoConectar.setOnClickListener { aoTocarConectar() }
         botaoTrocar.setOnClickListener { trocarRobo() }
         botaoMensagens.setOnClickListener { alternarMensagens() }
+        botaoSakura.setOnClickListener { aoTocarSakura() }
+        botaoAuto.setOnClickListener { aoTocarAuto() }
     }
 
     // ================================================================
@@ -268,6 +323,9 @@ class MainActivity : Activity(), ConexaoBluetooth.Ouvinte {
         val dedo = ev.getPointerId(indice)
         botao.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
         avisarSeDesconectado()
+        // A pessoa assumiu o controle: sai do AUTO (o firmware também sai ao
+        // receber a letra de movimento repetida, ou na hora com o '0').
+        if (modoAuto) sairDoAuto(avisar = true)
         val resultado = controle.pressionar(dedo, comando, ev.eventTime)
         if (resultado != ResultadoToque.SEGURANDO) {
             // ■ ou toque duplo: os outros dedos deixam de valer (o controle já soltou todos).
@@ -324,6 +382,8 @@ class MainActivity : Activity(), ConexaoBluetooth.Ouvinte {
 
     /** Para o robô e solta todos os botões (tela coberta, app fora da tela, toque cancelado). */
     private fun pararPorSeguranca() {
+        // O '0' também tira o robô do AUTO: o app acompanha.
+        if (modoAuto) sairDoAuto(avisar = false)
         controle.pararTudo()
         soltarBotoesNaTela()
         enviarComandoAtual(forcar = true)
@@ -337,9 +397,20 @@ class MainActivity : Activity(), ConexaoBluetooth.Ouvinte {
         Toast.makeText(this, R.string.conecte_primeiro, Toast.LENGTH_SHORT).show()
     }
 
+    /**
+     * O que mandar ao robô agora. Manual: o botão apertado (ou '0').
+     * AUTO: 'I' até o robô confirmar que entrou, depois a decisão da Sakura
+     * (G, R ou P), que também renova o watchdog do firmware.
+     */
+    private fun comandoParaEnviar(): Char = when {
+        !modoAuto -> controle.comandoAtual()
+        precisaEntrarAuto -> ENTRAR_AUTO
+        else -> decisaoIA
+    }
+
     /** Envia o comando atual se ele mudou (ou sempre, se forcar = true). */
     private fun enviarComandoAtual(forcar: Boolean = false) {
-        val comando = controle.comandoAtual()
+        val comando = comandoParaEnviar()
         if (estado == Estado.CONECTADO && (forcar || comando != ultimoEnviado)) {
             conexao?.enviar(comando)
             ultimoEnviado = comando
@@ -459,12 +530,15 @@ class MainActivity : Activity(), ConexaoBluetooth.Ouvinte {
 
     private fun ficarDesconectado(motivo: String?) {
         pararBatimento()
+        modoAuto = false
+        precisaEntrarAuto = false
         estado = Estado.DESCONECTADO
         erroDeStatus = motivo
         ultimoEnviado = null
         distanciaCm = null
         obstaculo = null
         buraco = null
+        telemetria = null
         window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         atualizarTudo()
     }
@@ -482,6 +556,10 @@ class MainActivity : Activity(), ConexaoBluetooth.Ouvinte {
         distanciaCm = null
         obstaculo = null
         buraco = null
+        telemetria = null
+        avisouFalhaMpu = false
+        modoAuto = false
+        precisaEntrarAuto = false
         mensagens.clear()
         if (mensagensVisiveis) mostrarMensagens()
         // Dá 2 s para chegar a primeira linha antes de mostrar o aviso de "sem dados".
@@ -517,6 +595,10 @@ class MainActivity : Activity(), ConexaoBluetooth.Ouvinte {
             }
             is EventoRobo.Colisao -> tratarPerigo(evento.ativo, buraco)
             is EventoRobo.Buraco -> tratarPerigo(obstaculo, evento.ativo)
+            is EventoRobo.Telemetria -> {
+                sakura?.enviarTelemetria(linha) // a Sakura recebe a linha crua do robô
+                tratarTelemetria(evento)
+            }
             is EventoRobo.Outra -> Unit
             null -> Unit
         }
@@ -551,6 +633,238 @@ class MainActivity : Activity(), ConexaoBluetooth.Ouvinte {
         atualizarPerigo()
         atualizarComandoNaTela()
     }
+
+    /** Chegou o JSON do robô: atualiza o cartão do piso (trepidação e inclinação). */
+    private fun tratarTelemetria(t: EventoRobo.Telemetria) {
+        telemetria = t
+        ultimaTelemetriaEm = SystemClock.elapsedRealtime()
+        // A distância do JSON chega mais vezes que a linha DIST: aproveita.
+        distanciaCm = t.df
+        atualizarDistancia()
+        if (t.mpuFalhou && !avisouFalhaMpu) {
+            avisouFalhaMpu = true
+            Toast.makeText(this, R.string.falha_mpu_dica, Toast.LENGTH_LONG).show()
+        } else if (!t.mpuFalhou) {
+            avisouFalhaMpu = false
+        }
+        acompanharModoDoRobo(t.modo)
+        atualizarPiso()
+    }
+
+    /** Confere, pelo campo "m" do JSON, se o robô está mesmo no modo que o app pensa. */
+    private fun acompanharModoDoRobo(modoDoRobo: Char) {
+        if (!modoAuto) return
+        if (modoDoRobo == 'A') {
+            if (precisaEntrarAuto) {
+                precisaEntrarAuto = false
+                roboConfirmouAuto = true
+                enviarComandoAtual(forcar = true) // já manda a decisão da Sakura
+            }
+        } else if (roboConfirmouAuto) {
+            // Estava em AUTO e voltou ao manual sem o app pedir (reiniciou, ruído).
+            // Não manda 'I' de novo sozinho: para e avisa.
+            sairDoAuto(avisar = false)
+            Toast.makeText(this, R.string.auto_robo_saiu, Toast.LENGTH_LONG).show()
+        }
+    }
+
+    // ================================================================
+    // Modo automático
+
+    private fun aoTocarAuto() {
+        if (estado != Estado.CONECTADO) {
+            avisarSeDesconectado()
+            return
+        }
+        if (modoAuto) sairDoAuto(avisar = true) else entrarNoAuto()
+    }
+
+    private fun entrarNoAuto() {
+        if (estado != Estado.CONECTADO || modoAuto) return
+        controle.pararTudo()
+        soltarBotoesNaTela()
+        modoAuto = true
+        precisaEntrarAuto = true
+        roboConfirmouAuto = false
+        if (!sakuraRespondendo()) decisaoIA = IA_SEGUIR
+        enviarComandoAtual(forcar = true) // 'I'
+        Toast.makeText(this, R.string.auto_iniciou, Toast.LENGTH_LONG).show()
+        atualizarSakura()
+        atualizarComandoNaTela()
+    }
+
+    /** Sai do AUTO: o robô recebe '0' (para e volta ao manual). */
+    private fun sairDoAuto(avisar: Boolean) {
+        if (!modoAuto) return
+        modoAuto = false
+        precisaEntrarAuto = false
+        roboConfirmouAuto = false
+        controle.pararTudo()
+        soltarBotoesNaTela()
+        enviarComandoAtual(forcar = true) // '0'
+        if (avisar) Toast.makeText(this, R.string.auto_saiu, Toast.LENGTH_SHORT).show()
+        atualizarSakura()
+        atualizarComandoNaTela()
+    }
+
+    // ================================================================
+    // Sakura (IA no PC, pelo Wi-Fi)
+
+    private fun aoTocarSakura() {
+        val s = sakura ?: return
+        if (s.endereco != null || testandoSakura) {
+            s.endereco = null
+            testandoSakura = false
+            decisaoIA = IA_SEGUIR
+            motivoIA = ""
+            falaSakura = ""
+            enviarComandoAtual(forcar = modoAuto)
+            atualizarSakura()
+            return
+        }
+        val campo = EditText(this).apply {
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_URI
+            setSingleLine()
+            hint = getString(R.string.sakura_dica_endereco)
+            setText(preferencias.getString(CHAVE_SAKURA, "") ?: "")
+            setSelection(text.length)
+        }
+        val margem = (20 * resources.displayMetrics.density).toInt()
+        val moldura = android.widget.FrameLayout(this).apply {
+            setPadding(margem, margem / 2, margem, 0)
+            addView(campo)
+        }
+        AlertDialog.Builder(this)
+            .setTitle(R.string.sakura_dialogo_titulo)
+            .setMessage(R.string.sakura_dialogo_msg)
+            .setView(moldura)
+            .setPositiveButton(R.string.sakura_ligar) { _, _ -> ligarSakura(campo.text.toString()) }
+            .setNegativeButton(R.string.cancelar, null)
+            .show()
+    }
+
+    private fun ligarSakura(digitado: String) {
+        val s = sakura ?: return
+        val base = normalizarEnderecoSakura(digitado)
+        if (base == null) {
+            Toast.makeText(this, R.string.sakura_endereco_invalido, Toast.LENGTH_LONG).show()
+            return
+        }
+        preferencias.edit().putString(CHAVE_SAKURA, enderecoParaMostrar(base)).apply()
+        testandoSakura = true
+        textoSakuraStatus.text = getString(R.string.sakura_testando, enderecoParaMostrar(base))
+        atualizarSakura()
+        s.testar(base) { erro ->
+            if (!testandoSakura) return@testar // desligaram antes da resposta
+            testandoSakura = false
+            if (erro == null) {
+                s.endereco = base
+                ultimaRespostaSakuraEm = SystemClock.elapsedRealtime()
+                Toast.makeText(this, R.string.sakura_conectou, Toast.LENGTH_LONG).show()
+            } else {
+                Toast.makeText(this, getString(R.string.sakura_falhou, erro), Toast.LENGTH_LONG).show()
+            }
+            atualizarSakura()
+        }
+    }
+
+    private fun sakuraRespondendo(): Boolean =
+        sakura?.endereco != null &&
+            SystemClock.elapsedRealtime() - ultimaRespostaSakuraEm <= SAKURA_TIMEOUT_MS
+
+    /** Chamado pelo batimento: Sakura calada há 3 s = o robô decide sozinho (G). */
+    private fun conferirSakuraViva() {
+        if (sakura?.endereco == null) return
+        if (!sakuraRespondendo() && (decisaoIA != IA_SEGUIR || motivoIA.isNotEmpty())) {
+            decisaoIA = IA_SEGUIR
+            motivoIA = ""
+            atualizarComandoNaTela()
+        }
+        atualizarSakura() // online / sem resposta
+    }
+
+    override fun aoResponderSakura(resposta: RespostaSakura) {
+        if (sakura?.endereco == null) return
+        ultimaRespostaSakuraEm = SystemClock.elapsedRealtime()
+        val mudou = resposta.decisao != decisaoIA
+        decisaoIA = resposta.decisao
+        motivoIA = resposta.motivo
+        if (resposta.fala.isNotBlank()) falaSakura = resposta.fala
+        if (mudou && modoAuto) enviarComandoAtual(forcar = true) // não espera o batimento
+        for (c in resposta.comandos) executarComandoDeVoz(c)
+        atualizarSakura()
+        atualizarComandoNaTela()
+    }
+
+    override fun aoFalharSakura(motivo: String) {
+        // Erros isolados acontecem no Wi-Fi; o batimento confere se ela sumiu de vez.
+        atualizarSakura()
+    }
+
+    /** Comandos falados para a Sakura ("Sakura, robô ..."). Nunca movimento. */
+    private fun executarComandoDeVoz(c: Char) {
+        if (estado != Estado.CONECTADO) return
+        when (c) {
+            ENTRAR_AUTO -> entrarNoAuto()
+            PARAR, 'M' -> {
+                if (modoAuto) sairDoAuto(avisar = true) else pararPorSeguranca()
+                if (c == 'M') conexao?.enviar('M')
+            }
+            'B' -> conexao?.enviar('B')
+            'K' -> if (!modoAuto && controle.comandoAtual() == PARAR) conexao?.enviar('K')
+        }
+    }
+
+    private fun atualizarSakura() {
+        val endereco = sakura?.endereco
+        val (texto, cor) = when {
+            testandoSakura -> Pair(textoSakuraStatus.text.toString(), R.color.ambar)
+            endereco == null -> Pair(getString(R.string.sakura_desligada), R.color.cinza)
+            estado != Estado.CONECTADO ->
+                Pair(getString(R.string.sakura_aguardando, enderecoParaMostrar(endereco)), R.color.ambar)
+            sakuraRespondendo() ->
+                Pair(getString(R.string.sakura_online, enderecoParaMostrar(endereco)), R.color.verde)
+            else -> Pair(getString(R.string.sakura_sem_resposta), R.color.perigo)
+        }
+        textoSakuraStatus.text = texto
+        pintar(pontoSakura, cor)
+        botaoSakura.setText(
+            if (endereco != null || testandoSakura) R.string.botao_sakura_desligar else R.string.botao_sakura_ligar,
+        )
+
+        val mostrarDecisao = endereco != null && estado == Estado.CONECTADO && sakuraRespondendo()
+        textoSakuraDecisao.visibility = if (mostrarDecisao) View.VISIBLE else View.GONE
+        if (mostrarDecisao) {
+            textoSakuraDecisao.text = getString(R.string.sakura_decisao, nomeDaDecisao(decisaoIA), motivoIA)
+            textoSakuraDecisao.setTextColor(
+                getColor(
+                    when (decisaoIA) {
+                        IA_PARAR -> R.color.perigo_escuro
+                        IA_REDUZIR -> R.color.ambar
+                        else -> R.color.verde
+                    },
+                ),
+            )
+        }
+        val mostrarFala = endereco != null && falaSakura.isNotBlank()
+        textoSakuraFala.visibility = if (mostrarFala) View.VISIBLE else View.GONE
+        if (mostrarFala) textoSakuraFala.text = getString(R.string.sakura_fala, falaSakura)
+
+        botaoAuto.setText(if (modoAuto) R.string.botao_auto_parar else R.string.botao_auto_iniciar)
+        botaoAuto.setBackgroundResource(
+            if (modoAuto) R.drawable.bg_botao_desconectar else R.drawable.bg_botao_conectar,
+        )
+        botaoAuto.isEnabled = estado == Estado.CONECTADO
+        botaoAuto.alpha = if (botaoAuto.isEnabled) 1f else 0.5f
+    }
+
+    private fun nomeDaDecisao(d: Char): String = getString(
+        when (d) {
+            IA_PARAR -> R.string.decisao_parar
+            IA_REDUZIR -> R.string.decisao_reduzir
+            else -> R.string.decisao_seguir
+        },
+    )
 
     // ---------------- Permissão e Bluetooth ligado ----------------
 
@@ -715,6 +1029,8 @@ class MainActivity : Activity(), ConexaoBluetooth.Ouvinte {
         atualizarAvisoSemDados()
         atualizarDistancia()
         atualizarPerigo()
+        atualizarPiso()
+        atualizarSakura()
         atualizarComandoNaTela()
     }
 
@@ -783,6 +1099,51 @@ class MainActivity : Activity(), ConexaoBluetooth.Ouvinte {
         )
     }
 
+    /**
+     * Cartão do piso. A telemetria só vale se chegou há menos de 2 s (firmware
+     * antigo, sem JSON, ou linha perdida: mostra "Sem dados" em vez de número velho).
+     */
+    private fun atualizarPiso() {
+        val t = telemetria?.takeIf {
+            dadosValidos() && SystemClock.elapsedRealtime() - ultimaTelemetriaEm <= SEM_DADOS_MS
+        }
+        if (t == null || t.mpuFalhou) {
+            textoPiso.setText(if (t == null) R.string.sem_dados else R.string.piso_falha_mpu)
+            textoPiso.setTextColor(getColor(if (t == null) R.color.tinta_suave else R.color.perigo_escuro))
+            pintar(pontoPiso, if (t == null) R.color.cinza else R.color.perigo)
+            cartaoPiso.setBackgroundResource(R.drawable.cartao_indicador)
+            textoTrepidacao.setText(R.string.distancia_desconhecida)
+            barraTrepidacao.progress = 0
+            barraTrepidacao.progressTintList = ColorStateList.valueOf(getColor(R.color.cinza))
+            textoInclinacao.setText(R.string.inclinacao_desconhecida)
+            textoInclinacao.setTextColor(getColor(R.color.tinta_suave))
+            return
+        }
+
+        val (texto, cor) = when (nivelDaTrepidacao(t.vib)) {
+            NivelTrepidacao.LISO -> Pair(R.string.piso_liso, R.color.verde)
+            NivelTrepidacao.IRREGULAR -> Pair(R.string.piso_irregular, R.color.ambar)
+            NivelTrepidacao.FORTE -> Pair(R.string.piso_forte, R.color.perigo)
+        }
+        val ruim = cor != R.color.verde
+        textoPiso.setText(texto)
+        textoPiso.setTextColor(getColor(if (ruim) R.color.perigo_escuro else R.color.tinta))
+        pintar(pontoPiso, cor)
+        cartaoPiso.setBackgroundResource(
+            if (cor == R.color.perigo) R.drawable.cartao_indicador_perigo else R.drawable.cartao_indicador,
+        )
+        textoTrepidacao.text = getString(R.string.trepidacao_g, t.vib)
+        barraTrepidacao.progress = barraDaTrepidacao(t.vib)
+        barraTrepidacao.progressTintList = ColorStateList.valueOf(getColor(cor))
+
+        val rampa = kotlin.math.abs(t.inc) > RAMPA_LIMITE
+        textoInclinacao.text = getString(
+            if (rampa) R.string.inclinacao_rampa else R.string.inclinacao_ok,
+            t.inc,
+        )
+        textoInclinacao.setTextColor(getColor(if (rampa) R.color.perigo_escuro else R.color.tinta_suave))
+    }
+
     private fun mostrarIndicador(
         cartao: View,
         ponto: View,
@@ -816,7 +1177,11 @@ class MainActivity : Activity(), ConexaoBluetooth.Ouvinte {
     private fun atualizarComandoNaTela() {
         val atual = controle.comandoAtual()
         val continuo = controle.modoContinuo()
-        textoMovimento.text = getString(R.string.movimento, rotuloDe(atual))
+        textoMovimento.text = if (modoAuto) {
+            getString(R.string.movimento_auto, nomeDaDecisao(decisaoIA))
+        } else {
+            getString(R.string.movimento, rotuloDe(atual))
+        }
         val nomeContinuo = if (continuo == null) getString(R.string.nenhum) else rotuloDe(continuo)
         textoContinuo.text = getString(R.string.modo_continuo, nomeContinuo)
         for ((botao, comando) in botoes) {
@@ -840,6 +1205,8 @@ class MainActivity : Activity(), ConexaoBluetooth.Ouvinte {
             atualizarDistancia()
             atualizarPerigo()
         }
+        // O JSON pode parar sozinho (linhas perdidas): o cartão do piso confere a idade dele.
+        if (::cartaoPiso.isInitialized) atualizarPiso()
     }
 
     private fun pintar(view: View, corRes: Int) {
@@ -898,5 +1265,8 @@ class MainActivity : Activity(), ConexaoBluetooth.Ouvinte {
         private const val PREFERENCIAS = "robo"
         private const val CHAVE_MAC = "ultimo_mac"
         private const val CHAVE_JA_PEDIU = "ja_pediu_permissao"
+        private const val CHAVE_SAKURA = "endereco_sakura"
+        private const val SAKURA_TIMEOUT_MS = 3000L
+        private const val ENTRAR_AUTO = 'I'
     }
 }

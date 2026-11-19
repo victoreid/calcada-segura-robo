@@ -1,0 +1,59 @@
+{
+  "carros": {
+    "ae86": {
+      "nome": "Toyota AE86 Corolla Levin/Sprinter Trueno",
+      "anos": "1983 a 1987",
+      "motor": "4A-GE 1.6 aspirado, 130 cavalos",
+      "sobre": "O hachi-roku, carro do Takumi no Initial D. Leve, tracao traseira e equilibrado. Prova que peso baixo vale mais que potencia bruta no drift."
+    },
+    "rx7": {
+      "nome": "Mazda RX-7 FD3S",
+      "anos": "1992 a 2002",
+      "motor": "13B-REW rotativo biturbo, 255 cavalos",
+      "sobre": "Motor rotativo, distribuicao de peso quase perfeita e um dos designs mais bonitos ja feitos. Era o carro do Han no Tokyo Drift."
+    },
+    "s15": {
+      "nome": "Nissan Silvia S15",
+      "anos": "1999 a 2002",
+      "motor": "SR20DET 2.0 turbo, 250 cavalos",
+      "sobre": "Considerado o melhor carro de drift de fabrica. Tracao traseira, motor forte e chassi que perdoa erro de iniciante."
+    },
+    "supra": {
+      "nome": "Toyota Supra JZA80 MK4",
+      "anos": "1993 a 2002",
+      "motor": "2JZ-GTE 3.0 biturbo, 280 cavalos",
+      "sobre": "O 2JZ tem bloco de ferro que aguenta mais de 1000 cavalos com internos originais. Por isso virou lenda entre preparadores."
+    },
+    "r34": {
+      "nome": "Nissan Skyline GT-R R34",
+      "anos": "1999 a 2002",
+      "motor": "RB26DETT 2.6 biturbo, 280 cavalos",
+      "sobre": "Apelidado de Godzilla. Tracao integral ATTESA e direcao nas quatro rodas. Dominou tanto as pistas que foi banido de varias categorias."
+    },
+    "miata": {
+      "nome": "Mazda MX-5 Miata NA",
+      "anos": "1989 a 1997",
+      "motor": "1.6 ou 1.8 aspirado, cerca de 130 cavalos",
+      "sobre": "Pouca potencia, mas leve e traseiro. O carro mais barato para aprender a controlar deslizamento sem se machucar ou quebrar tudo."
+    }
+  },
+  "tecnicas": {
+    "clutch kick": "Voce pisa e solta a embreagem bruscamente em alta rotacao. O tranco quebra a aderencia da traseira e inicia o deslizamento.",
+    "feint": "Tambem chamado de scandinavian flick. Voce joga o carro para o lado contrario da curva antes de entrar, e usa a transferencia de peso para soltar a traseira.",
+    "powerslide": "A tecnica mais simples: acelerar forte na saida da curva ate a traseira perder aderencia. Precisa de potencia e tracao traseira.",
+    "contraesterco": "E girar o volante para o lado oposto do deslizamento para manter o controle. E o movimento mais importante do drift.",
+    "handbrake": "Puxar o freio de mao trava as rodas traseiras e inicia o deslizamento. Muito usado em curvas fechadas e para corrigir angulo.",
+    "braking drift": "Frear na entrada da curva transferindo peso para a frente, aliviando a traseira e provocando o deslizamento."
+  },
+  "termos": {
+    "jdm": "Japanese Domestic Market. Sao os carros e pecas feitos para o mercado interno japones, geralmente com especificacoes melhores que as versoes de exportacao.",
+    "touge": "Corrida em estradas de montanha estreitas e sinuosas. E onde o drift nasceu, nas montanhas de Gunma e Hakone.",
+    "wangan": "A rodovia costeira de Toquio, palco das corridas de alta velocidade em linha reta.",
+    "kanjo": "Os corredores da rodovia circular de Osaka, famosos por usarem Honda Civic preparados.",
+    "shakotan": "Estilo de rebaixamento extremo, com rodas negativas para fora do paralama.",
+    "bosozoku": "Estilo japones exagerado, com escapamentos gigantes, aerofolios enormes e saias muito longas.",
+    "zenki": "Versao de primeira serie de um modelo, antes da reestilizacao. O oposto e kouki.",
+    "kouki": "Versao reestilizada, a segunda fase de um modelo. Geralmente mais valorizada."
+  },
+  "iniciante": "Para comecar no drift, o ideal e um carro leve, de tracao traseira e barato de quebrar. Miata NA, Nissan 240SX ou um BMW E36 sao as escolhas classicas. Potencia vem depois: primeiro voce aprende o contraesterco e a leitura de peso."
+}

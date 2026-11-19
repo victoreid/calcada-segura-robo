@@ -1,7 +1,9 @@
 package br.fiap.calcadasegura.robo
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /** Testes do LeitorDeLinhas e do interpretarLinha (rodam no computador, sem celular). */
@@ -121,5 +123,58 @@ class ProtocoloTest {
         assertEquals(EventoRobo.Outra("COLLISION:7"), interpretarLinha("COLLISION:7"))
         val json = "{\"tipo\":\"buraco\",\"confianca\":0.87}"
         assertEquals(EventoRobo.Outra(json), interpretarLinha(json))
+    }
+
+    // ---------------- Telemetria JSON (MPU-6050) ----------------
+
+    @Test
+    fun interpretaTelemetriaDoFirmware() {
+        val linha = "{\"t\":12345,\"m\":\"A\",\"df\":32,\"dc\":0.4,\"inc\":11.2,\"vib\":0.42,\"ev\":\"rampa\"}"
+        assertEquals(
+            EventoRobo.Telemetria(modo = 'A', df = 32, dc = 0.4f, inc = 11.2f, vib = 0.42f, ev = "rampa"),
+            interpretarLinha(linha),
+        )
+    }
+
+    @Test
+    fun telemetriaComNumerosNegativosEEspacos() {
+        val linha = "  {\"t\":9,\"m\":\"M\",\"df\":400,\"dc\": -1.5,\"inc\": -3.0,\"vib\":0.05,\"ev\":\"ok\"}  "
+        val t = interpretarLinha(linha) as EventoRobo.Telemetria
+        assertEquals('M', t.modo)
+        assertEquals(400, t.df)
+        assertEquals(-1.5f, t.dc, 0.0001f)
+        assertEquals(-3.0f, t.inc, 0.0001f)
+        assertEquals(0.05f, t.vib, 0.0001f)
+        assertFalse(t.mpuFalhou)
+    }
+
+    @Test
+    fun telemetriaAvisaFalhaDoMpu() {
+        val linha = "{\"t\":1,\"m\":\"M\",\"df\":50,\"dc\":0.0,\"inc\":0.0,\"vib\":0.00,\"ev\":\"falha_mpu\"}"
+        assertTrue((interpretarLinha(linha) as EventoRobo.Telemetria).mpuFalhou)
+    }
+
+    @Test
+    fun telemetriaCortadaViraOutra() {
+        // Linha que perdeu o fim no Bluetooth não pode virar número errado na tela.
+        val cortada = "{\"t\":1,\"m\":\"M\",\"df\":50,\"dc\":0.0,\"inc\":2.0,\"vib\":0.3"
+        assertEquals(EventoRobo.Outra(cortada), interpretarLinha(cortada))
+    }
+
+    @Test
+    fun niveisDaTrepidacao() {
+        assertEquals(NivelTrepidacao.LISO, nivelDaTrepidacao(0.0f))
+        assertEquals(NivelTrepidacao.LISO, nivelDaTrepidacao(0.12f))
+        assertEquals(NivelTrepidacao.IRREGULAR, nivelDaTrepidacao(0.13f))
+        assertEquals(NivelTrepidacao.IRREGULAR, nivelDaTrepidacao(0.30f))
+        assertEquals(NivelTrepidacao.FORTE, nivelDaTrepidacao(0.31f))
+    }
+
+    @Test
+    fun barraDaTrepidacaoFicaEntre0e100() {
+        assertEquals(0, barraDaTrepidacao(0f))
+        assertEquals(50, barraDaTrepidacao(0.25f))
+        assertEquals(100, barraDaTrepidacao(0.5f))
+        assertEquals(100, barraDaTrepidacao(9.99f))
     }
 }

@@ -17,6 +17,9 @@
     <!-- Android 12 ou mais novo: "Dispositivos próximos", pedida quando o app abre a conexão. -->
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
 
+    <!-- Falar com a Sakura (IA do grupo) que roda no PC, pelo Wi-Fi. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <!-- Vibrar quando aparece obstáculo ou buraco. -->
     <uses-permission android:name="android.permission.VIBRATE" />
 
@@ -26,7 +29,9 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/TemaRobo">
+        android:theme="@style/TemaRobo"
+        android:usesCleartextTraffic="true">
+        <!-- usesCleartextTraffic: a ponte da Sakura é HTTP simples, só na rede local. -->
 
         <!-- configChanges: trocar o tema escuro ou o teclado não derruba a conexão com o robô. -->
         <activity

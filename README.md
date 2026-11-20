@@ -2,7 +2,7 @@
 
 FIAP · Global Solution 2026.2 · CitizenTech · **Project-Based Maker Lab**
 
-> **Vídeo (até 6 min):** _a completar com o link do YouTube_
+> **Vídeo (até 6 min):** https://youtu.be/-Y4NTO5SyNI
 
 ## Integrantes
 
